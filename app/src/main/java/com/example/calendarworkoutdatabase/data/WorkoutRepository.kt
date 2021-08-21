@@ -7,7 +7,7 @@ class WorkoutRepository(private val workoutDAO: WorkoutDAO) {
 
     val readAllData: Observable<List<WorkoutDate>> = workoutDAO.getAll()
 
-    fun addDate(workoutDate: WorkoutDate): Completable {
-        return workoutDAO.addWorkout(workoutDate)
-    }
+    fun addDate(workoutDate: WorkoutDate): Completable = workoutDAO.addWorkout(workoutDate)
+
+    fun deleteAll(): Completable = workoutDAO.deleteAll()
 }

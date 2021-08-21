@@ -18,6 +18,7 @@ class MainActivity : AppCompatActivity(), ViewListener{
     val textView: TextView by lazy { findViewById(R.id.textView) }
     private val button: Button by lazy { findViewById(R.id.button) }
     private val button2: Button by lazy { findViewById(R.id.button2) }
+    private val button3: Button by lazy { findViewById(R.id.button3) }
     private val viewModel: ViewModel by lazy { ViewModel(application) }
 
     @SuppressLint("CheckResult")
@@ -51,6 +52,9 @@ class MainActivity : AppCompatActivity(), ViewListener{
             viewModel.getAllWorkoutDates()
         }
 
+        button3.setOnClickListener {
+            viewModel.deleteAllWorkoutDates()
+        }
     }
 
 

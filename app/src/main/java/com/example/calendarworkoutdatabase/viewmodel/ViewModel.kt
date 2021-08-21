@@ -25,18 +25,31 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe()
+
         invalidateView()
     }
 
     @SuppressLint("CheckResult")
-    fun getAllWorkoutDates(){
+    fun getAllWorkoutDates() {
         repository.readAllData
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe (
-                {listWorkoutDates -> viewState.listOfWorkoutDates = listWorkoutDates
-                invalidateView()},
-                {error -> Log.e("DataBase", error.localizedMessage)})
+            .subscribe(
+                { listWorkoutDates ->
+                    viewState.listOfWorkoutDates = listWorkoutDates
+                    invalidateView()
+                },
+                { error -> Log.e("DataBase", error.localizedMessage) })
+        viewState = viewState.copy(didUserDeleteTable = false)
+        invalidateView()
+    }
+
+    fun deleteAllWorkoutDates() {
+        repository.deleteAll()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe()
+        viewState = viewState.copy(didUserDeleteTable = true)
         invalidateView()
     }
 

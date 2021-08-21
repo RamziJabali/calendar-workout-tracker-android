@@ -17,6 +17,9 @@ interface WorkoutDAO {
     @Query("SELECT * FROM user_workout_schedule WHERE uid IN (:userIds)")
     fun loadAllByIds(userIds: IntArray): Single<List<WorkoutDate>>
 
+    @Query("DELETE FROM user_workout_schedule")
+    fun deleteAll(): Completable
+
     @Delete
-    fun delete(workoutDate: WorkoutDate): Single<Integer>
+    fun delete(workoutDate: WorkoutDate): Single<Int>
 }
