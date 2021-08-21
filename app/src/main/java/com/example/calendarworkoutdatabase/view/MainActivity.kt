@@ -47,15 +47,11 @@ class MainActivity : AppCompatActivity(), ViewListener{
             viewModel.addDate(editTextView.text.toString())
             Toast.makeText(this, "Added to database", Toast.LENGTH_LONG).show()
         }
-
         button2.setOnClickListener {
             viewModel.getAllWorkoutDates()
         }
-
         button3.setOnClickListener {
             viewModel.deleteAllWorkoutDates()
         }
     }
-
-
 }
