@@ -1,12 +1,13 @@
 package com.example.calendarworkoutdatabase.data
 
-import androidx.lifecycle.LiveData
+import io.reactivex.Completable
+import io.reactivex.Single
 
 class WorkoutRepository(private val workoutDAO: WorkoutDAO) {
 
-    val readAllData: LiveData<List<WorkoutDate>> = workoutDAO.readAllData()
+    val readAllData: Single<List<WorkoutDate>> = workoutDAO.getAll()
 
-    fun addDate(workoutDate: WorkoutDate) {
-        workoutDAO.addWorkout(workoutDate)
+    fun addDate(workoutDate: WorkoutDate): Completable {
+        return workoutDAO.addWorkout(workoutDate)
     }
 }

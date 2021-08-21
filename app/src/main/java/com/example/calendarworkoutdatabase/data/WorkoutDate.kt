@@ -5,4 +5,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "user_workout_schedule")
-data class WorkoutDate(@PrimaryKey(autoGenerate = false) @ColumnInfo(name = "date") val date: String)
+data class WorkoutDate(
+    @PrimaryKey(autoGenerate = true) val uid: Int,
+    @ColumnInfo(name = "date") val date: String
+)

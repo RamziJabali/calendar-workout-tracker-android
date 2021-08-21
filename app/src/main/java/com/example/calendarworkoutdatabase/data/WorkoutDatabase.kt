@@ -14,18 +14,19 @@ abstract class WorkoutDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: WorkoutDatabase? = null
 
-        fun getDatabase(context: Context): WorkoutDatabase {
-            val tempInstance = INSTANCE
-            if (tempInstance != null) {
-                return tempInstance
-            }
+        fun getInstance(context: Context): WorkoutDatabase {
             synchronized(this) {
-                val instance = Room.databaseBuilder(
-                    context.applicationContext,
-                    WorkoutDatabase::class.java,
-                    "user_workout_schedule"
-                ).build()
-                INSTANCE = instance
+                var instance = INSTANCE
+
+                if (instance == null) {
+                    instance = Room.databaseBuilder(
+                        context.applicationContext,
+                        WorkoutDatabase::class.java,
+                        "user_workout_schedule"
+                    ).fallbackToDestructiveMigration()
+                        .build()
+                    INSTANCE = instance
+                }
                 return instance
             }
         }
