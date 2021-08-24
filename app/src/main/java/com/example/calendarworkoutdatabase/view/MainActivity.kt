@@ -29,8 +29,8 @@ class MainActivity : AppCompatActivity(), ViewListener {
     }
 
     override fun setNewViewState(viewState: ViewState) {
-        val tomorrow = ZonedDateTimes.tomorrow.toInstant().toEpochMilli()
-        calendarView.setDate(tomorrow, true, true)
+//        val tomorrow = ZonedDateTimes.tomorrow.toInstant().toEpochMilli()
+//        calendarView.setDate(tomorrow, true, true)
     }
 
     private fun setup() {
