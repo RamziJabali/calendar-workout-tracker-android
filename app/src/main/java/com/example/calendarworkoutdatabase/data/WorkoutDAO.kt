@@ -14,7 +14,7 @@ interface WorkoutDAO {
     @Query("SELECT * FROM user_workout_schedule")
     fun getAll(): Observable<List<WorkoutDate>>
 
-    @Query("SELECT * FROM user_workout_schedule WHERE uid IN (:userIds)")
+    @Query("SELECT * FROM user_workout_schedule WHERE date IN (:userIds)")
     fun loadAllByIds(userIds: IntArray): Single<List<WorkoutDate>>
 
     @Query("DELETE FROM user_workout_schedule")
