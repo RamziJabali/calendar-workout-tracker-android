@@ -63,6 +63,7 @@ class MainActivity : AppCompatActivity(), ViewListener {
         var args = Bundle()
         args.putInt(CaldroidFragment.MONTH, calendar.get(Calendar.MONTH) + 1)
         args.putInt(CaldroidFragment.YEAR, calendar.get(Calendar.YEAR))
+        args.putBoolean(CaldroidFragment.ENABLE_CLICK_ON_DISABLED_DATES, false)
         caldroidFragment.arguments = args
         supportFragmentManager.beginTransaction()
             .replace(R.id.calendarView, caldroidFragment)

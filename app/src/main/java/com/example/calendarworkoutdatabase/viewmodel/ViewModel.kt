@@ -21,6 +21,9 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
 
     @SuppressLint("CheckResult")
     fun addDate(date: Long, didUserWorkout: Boolean) {
+        if(Date(date).after(Date())){
+            return
+        }
         if (doesThisEntryExist(WorkoutDate(date, didUserWorkout))) {
             viewState.workoutDate =
                 WorkoutDate(date = date, didUserAttend = !viewState.workoutDate.didUserAttend)
