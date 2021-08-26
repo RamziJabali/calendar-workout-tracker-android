@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">CalendarWorkOutDataBase</string>
+    <string name="delete_all_entries">Delete All Entries</string>
 </resources>
