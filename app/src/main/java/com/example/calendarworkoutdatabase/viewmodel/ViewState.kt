@@ -9,5 +9,5 @@ data class ViewState(
     var workoutDate: WorkoutDate = WorkoutDate(0, false),
     var didUserWorkOut: Boolean = false,
     var didUserDeleteTable: Boolean = false,
-    var didUserAddWorkoutDate: Boolean = false
+    var didUserAddWorkoutDate: Boolean = false,
 )

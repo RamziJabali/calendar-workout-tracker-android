@@ -21,7 +21,7 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
 
     @SuppressLint("CheckResult")
     fun addDate(date: Long, didUserWorkout: Boolean) {
-        if(Date(date).after(Date())){
+        if (Date(date).after(Date())) {
             return
         }
         if (doesThisEntryExist(WorkoutDate(date, didUserWorkout))) {
@@ -48,12 +48,16 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 { listWorkoutDates ->
-                    viewState.listOfWorkoutDatesConverted = convertTimeToDate(listWorkoutDates)
-                    viewState.listOfWorkoutDates = listWorkoutDates
+                    viewState =
+                        viewState.copy(
+                            listOfWorkoutDates = listWorkoutDates,
+                            listOfWorkoutDatesConverted = convertTimeToDate(listWorkoutDates),
+                            didUserDeleteTable = false,
+                            didUserAddWorkoutDate = false
+                        )
+                    invalidateView()
                 },
                 { error -> Log.e("DataBase", error.localizedMessage) })
-        viewState = viewState.copy(didUserDeleteTable = false, didUserAddWorkoutDate = false)
-        invalidateView()
     }
 
     @SuppressLint("CheckResult")

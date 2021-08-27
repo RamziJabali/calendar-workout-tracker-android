@@ -41,19 +41,44 @@ class MainActivity : AppCompatActivity(), ViewListener {
             .subscribe { viewState ->
                 setNewViewState(viewState = viewState)
             }
+        viewModel.getAllWorkoutDates()
     }
 
     override fun setNewViewState(viewState: ViewState) {
-        if (viewState.didUserAddWorkoutDate) {
-            if (viewState.workoutDate.didUserAttend) {
-                caldroidFragment.setBackgroundDrawableForDate(colorGreenDrawableRes,Date(viewState.workoutDate.date))
-            } else {
-                caldroidFragment.setBackgroundDrawableForDate(colorRedDrawableRes,Date(viewState.workoutDate.date))
+        when {
+            viewState.didUserAddWorkoutDate -> {
+                if (viewState.workoutDate.didUserAttend) {
+                    caldroidFragment.setBackgroundDrawableForDate(
+                        colorGreenDrawableRes,
+                        Date(viewState.workoutDate.date)
+                    )
+                } else {
+                    caldroidFragment.setBackgroundDrawableForDate(
+                        colorRedDrawableRes,
+                        Date(viewState.workoutDate.date)
+                    )
+                }
+                Log.i("Added Date -> DB: ", Date(viewState.workoutDate.date).toString())
             }
-            Log.i("Added Date -> DB: ", Date(viewState.workoutDate.date).toString())
-        } else if (viewState.didUserDeleteTable) {
-            caldroidFragment.clearBackgroundDrawableForDates(viewState.listOfWorkoutDatesConverted)
-            Toast.makeText(this, "Deleted All Entries Successfully", Toast.LENGTH_SHORT).show()
+            viewState.didUserDeleteTable -> {
+                caldroidFragment.clearBackgroundDrawableForDates(viewState.listOfWorkoutDatesConverted)
+                Toast.makeText(this, "Deleted All Entries Successfully", Toast.LENGTH_SHORT).show()
+            }
+            else -> {
+                for (index in viewState.listOfWorkoutDates.indices) {
+                    if (viewState.listOfWorkoutDates[index].didUserAttend) {
+                        caldroidFragment.setBackgroundDrawableForDate(
+                            colorGreenDrawableRes,
+                            viewState.listOfWorkoutDatesConverted[index]
+                        )
+                    } else {
+                        caldroidFragment.setBackgroundDrawableForDate(
+                            colorRedDrawableRes,
+                            viewState.listOfWorkoutDatesConverted[index]
+                        )
+                    }
+                }
+            }
         }
         caldroidFragment.refreshView()
     }
@@ -65,10 +90,10 @@ class MainActivity : AppCompatActivity(), ViewListener {
         args.putInt(CaldroidFragment.YEAR, calendar.get(Calendar.YEAR))
         args.putBoolean(CaldroidFragment.ENABLE_CLICK_ON_DISABLED_DATES, false)
         caldroidFragment.arguments = args
+
         supportFragmentManager.beginTransaction()
             .replace(R.id.calendarView, caldroidFragment)
             .commit()
-
         caldroidFragment.caldroidListener = object : CaldroidListener() {
             override fun onSelectDate(date: Date?, view: View?) {
                 if (date != null) {
