@@ -20,6 +20,7 @@ import java.util.*
 
 class MainActivity : AppCompatActivity(), ViewListener {
     private val viewModel: ViewModel by lazy { ViewModel(application) }
+    private val deleteAllButton: Button by lazy { findViewById(R.id.deleteAllButton) }
     private val caldroidFragment: CaldroidFragment by lazy {
         val calendar = Calendar.getInstance()
         CaldroidFragment().apply {
@@ -30,7 +31,6 @@ class MainActivity : AppCompatActivity(), ViewListener {
             }
         }
     }
-    private val deleteAllButton: Button by lazy { findViewById(R.id.deleteAllButton) }
 
     @SuppressLint("CheckResult")
     override fun onCreate(savedInstanceState: Bundle?) {

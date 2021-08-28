@@ -71,7 +71,7 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
         getAllWorkoutDates()
         for (index in viewState.listOfDateEntries) {
             if (index.date.time == userWorkoutDate.date) {
-                boolean = index.backgroundColor.color == colorGreenDrawableRes.color //problems are here
+                boolean = index.backgroundColor.color == colorGreenDrawableRes.color 
                 return WorkoutDate(userWorkoutDate.date, boolean)
             }
         }
