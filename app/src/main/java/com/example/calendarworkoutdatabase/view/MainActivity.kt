@@ -19,15 +19,17 @@ import io.reactivex.schedulers.Schedulers
 import java.util.*
 
 class MainActivity : AppCompatActivity(), ViewListener {
-    companion object {
-        private val colorRedDrawableRes: ColorDrawable =
-            ColorDrawable(Color.RED)
-        private val colorGreenDrawableRes: ColorDrawable =
-            ColorDrawable(Color.GREEN)
-    }
-
     private val viewModel: ViewModel by lazy { ViewModel(application) }
-    private val caldroidFragment: CaldroidFragment by lazy { CaldroidFragment() }
+    private val caldroidFragment: CaldroidFragment by lazy {
+        val calendar = Calendar.getInstance()
+        CaldroidFragment().apply {
+            arguments = Bundle().apply {
+                putInt(CaldroidFragment.MONTH, calendar.get(Calendar.MONTH) + 1)
+                putInt(CaldroidFragment.YEAR, calendar.get(Calendar.YEAR))
+                putBoolean(CaldroidFragment.ENABLE_CLICK_ON_DISABLED_DATES, false)
+            }
+        }
+    }
     private val deleteAllButton: Button by lazy { findViewById(R.id.deleteAllButton) }
 
     @SuppressLint("CheckResult")
@@ -45,66 +47,23 @@ class MainActivity : AppCompatActivity(), ViewListener {
     }
 
     override fun setNewViewState(viewState: ViewState) {
-        when {
-            viewState.didUserAddWorkoutDate -> {
-                if (viewState.workoutDate.didUserAttend) {
-                    caldroidFragment.setBackgroundDrawableForDate(
-                        colorGreenDrawableRes,
-                        Date(viewState.workoutDate.date)
-                    )
-                } else {
-                    caldroidFragment.setBackgroundDrawableForDate(
-                        colorRedDrawableRes,
-                        Date(viewState.workoutDate.date)
-                    )
-                }
-                Log.i("Added Date -> DB: ", Date(viewState.workoutDate.date).toString())
-            }
-            viewState.didUserDeleteTable -> {
-                caldroidFragment.clearBackgroundDrawableForDates(viewState.listOfWorkoutDatesConverted)
-                Toast.makeText(this, "Deleted All Entries Successfully", Toast.LENGTH_SHORT).show()
-            }
-            else -> {
-                for (index in viewState.listOfWorkoutDates.indices) {
-                    if (viewState.listOfWorkoutDates[index].didUserAttend) {
-                        caldroidFragment.setBackgroundDrawableForDate(
-                            colorGreenDrawableRes,
-                            viewState.listOfWorkoutDatesConverted[index]
-                        )
-                    } else {
-                        caldroidFragment.setBackgroundDrawableForDate(
-                            colorRedDrawableRes,
-                            viewState.listOfWorkoutDatesConverted[index]
-                        )
-                    }
-                }
-            }
+        for (dateEntry in viewState.listOfDateEntries) {
+            caldroidFragment.setBackgroundDrawableForDate(dateEntry.backgroundColor, dateEntry.date)
         }
         caldroidFragment.refreshView()
     }
 
     private fun setup() {
-        val calendar = Calendar.getInstance()
-        var args = Bundle()
-        args.putInt(CaldroidFragment.MONTH, calendar.get(Calendar.MONTH) + 1)
-        args.putInt(CaldroidFragment.YEAR, calendar.get(Calendar.YEAR))
-        args.putBoolean(CaldroidFragment.ENABLE_CLICK_ON_DISABLED_DATES, false)
-        caldroidFragment.arguments = args
-
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.calendarView, caldroidFragment)
-            .commit()
         caldroidFragment.caldroidListener = object : CaldroidListener() {
-            override fun onSelectDate(date: Date?, view: View?) {
-                if (date != null) {
-                    viewModel.addDate(date.time, true)
-                }
+            override fun onSelectDate(date: Date, view: View?) {
+                viewModel.addDate(date, true)
             }
         }
         deleteAllButton.setOnClickListener {
-            viewModel.getAllWorkoutDates()
             viewModel.deleteAllWorkoutDates()
         }
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.calendarView, caldroidFragment)
+            .commit()
     }
-
 }

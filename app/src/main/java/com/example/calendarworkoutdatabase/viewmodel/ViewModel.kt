@@ -2,96 +2,80 @@ package com.example.calendarworkoutdatabase.viewmodel
 
 import android.annotation.SuppressLint
 import android.app.Application
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
-import com.example.calendarworkoutdatabase.data.WorkoutDatabase
+import com.example.calendarworkoutdatabase.data.UseCase
 import com.example.calendarworkoutdatabase.data.WorkoutDate
-import com.example.calendarworkoutdatabase.data.WorkoutRepository
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import java.util.*
 
 class ViewModel(application: Application) : AndroidViewModel(application) {
+    companion object {
+        private val colorGreenDrawableRes: ColorDrawable =
+                ColorDrawable(Color.GREEN)
+        private val coloWhiteDrawableRes: ColorDrawable =
+                ColorDrawable(Color.WHITE)
+    }
+
     private var viewState = ViewState()
+    private val useCase by lazy { UseCase(application) }
+
     val viewStateObservable = BehaviorSubject.create<ViewState>()
 
-    private val database by lazy { WorkoutDatabase.getInstance(application.applicationContext) }
-    private val repository by lazy { WorkoutRepository(database.workoutDAO()) }
-
     @SuppressLint("CheckResult")
-    fun addDate(date: Long, didUserWorkout: Boolean) {
-        if (Date(date).after(Date())) {
-            return
-        }
-        if (doesThisEntryExist(WorkoutDate(date, didUserWorkout))) {
-            viewState.workoutDate =
-                WorkoutDate(date = date, didUserAttend = !viewState.workoutDate.didUserAttend)
+    fun addDate(date: Date, didUserWorkout: Boolean) {
+        if (date.after(Date())) return
+
+        val workoutDate = getMatchingEntryOrNull(WorkoutDate(date.time, didUserWorkout))
+
+        if (workoutDate != null) {
+            useCase.addDate(date, !workoutDate.didUserAttend)
         } else {
-            viewState.workoutDate = WorkoutDate(date, didUserWorkout)
+            useCase.addDate(date, didUserWorkout)
         }
-        repository.addDate(viewState.workoutDate)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                { Log.v("ViewModel", "Successfully Added date to DataBase") },
-                { error -> Log.e("Adding date to DB", error.localizedMessage) }
-            )
-        viewState = viewState.copy(didUserAddWorkoutDate = true, didUserDeleteTable = false)
-        invalidateView()
+        getAllWorkoutDates()
     }
 
     @SuppressLint("CheckResult")
     fun getAllWorkoutDates() {
-        repository.readAllData
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                { listWorkoutDates ->
-                    viewState =
-                        viewState.copy(
-                            listOfWorkoutDates = listWorkoutDates,
-                            listOfWorkoutDatesConverted = convertTimeToDate(listWorkoutDates),
-                            didUserDeleteTable = false,
-                            didUserAddWorkoutDate = false
-                        )
-                    invalidateView()
-                },
-                { error -> Log.e("DataBase", error.localizedMessage) })
+        useCase.getAllData()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        { list ->
+                            viewState.listOfDateEntries = list
+                            invalidateView()
+                            Log.i("ViewModel", "Success retrieving database")
+                        },
+                        { error -> Log.e("ViewModel", error.localizedMessage) })
     }
 
-    @SuppressLint("CheckResult")
     fun deleteAllWorkoutDates() {
-        repository.deleteAll()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe()
-        viewState = viewState.copy(didUserAddWorkoutDate = false, didUserDeleteTable = true)
+        useCase.deleteAllEntries()
+        val newListOfDates: MutableList<DateEntry> = mutableListOf()
+        for (date in viewState.listOfDateEntries) {
+            newListOfDates.add(date.copy(backgroundColor = coloWhiteDrawableRes))
+        }
+        viewState.listOfDateEntries = newListOfDates
         invalidateView()
     }
 
     @SuppressLint("CheckResult")
-    private fun doesThisEntryExist(userWorkoutDate: WorkoutDate): Boolean {
-        repository.readAllData
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                { listWorkoutDates ->
-                    viewState.listOfWorkoutDates = listWorkoutDates
-                },
-                { error -> Log.e("DataBase", error.localizedMessage) })
-        for (index in viewState.listOfWorkoutDates) {
-            if (index.date == userWorkoutDate.date) return true
+    private fun getMatchingEntryOrNull(userWorkoutDate: WorkoutDate): WorkoutDate? {
+        var workoutDate: WorkoutDate? = null
+        var boolean: Boolean
+        getAllWorkoutDates()
+        for (index in viewState.listOfDateEntries) {
+            if (index.date.time == userWorkoutDate.date) {
+                boolean = index.backgroundColor.color == colorGreenDrawableRes.color //problems are here
+                return WorkoutDate(userWorkoutDate.date, boolean)
+            }
         }
-        return false
-    }
-
-    private fun convertTimeToDate(allDates: List<WorkoutDate>): List<Date> {
-        var listOfDates: MutableList<Date> = mutableListOf()
-        for (index in allDates) {
-            listOfDates.add(Date(index.date))
-        }
-        return listOfDates
+        return workoutDate
     }
 
     private fun invalidateView() {
