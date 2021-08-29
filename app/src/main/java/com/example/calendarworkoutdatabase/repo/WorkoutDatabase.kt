@@ -1,10 +1,9 @@
-package com.example.calendarworkoutdatabase.data
+package com.example.calendarworkoutdatabase.repo
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.example.calendarworkoutdatabase.viewmodel.ViewModel
 
 @Database(entities = [WorkoutDate::class], version = 2, exportSchema = false)
 abstract class WorkoutDatabase : RoomDatabase() {

@@ -1,24 +1,22 @@
 package com.example.calendarworkoutdatabase.view
 
 import android.annotation.SuppressLint
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.Button
-import android.widget.Toast
 import com.example.calendarworkoutdatabase.R
 import com.example.calendarworkoutdatabase.viewmodel.ViewModel
 import com.example.calendarworkoutdatabase.viewmodel.ViewState
 import com.roomorama.caldroid.CaldroidFragment
 import com.roomorama.caldroid.CaldroidListener
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import java.util.*
 
-class MainActivity : AppCompatActivity(), ViewListener {
+class CalendarActivity : AppCompatActivity(), ViewListener {
+
     private val viewModel: ViewModel by lazy { ViewModel(application) }
     private val deleteAllButton: Button by lazy { findViewById(R.id.deleteAllButton) }
     private val caldroidFragment: CaldroidFragment by lazy {
@@ -31,32 +29,40 @@ class MainActivity : AppCompatActivity(), ViewListener {
             }
         }
     }
+    private val compositeDisposable = CompositeDisposable()
 
     @SuppressLint("CheckResult")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setup()
-        viewModel.viewStateObservable
+        compositeDisposable.add(viewModel.viewStateObservable
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { viewState ->
                 setNewViewState(viewState = viewState)
-            }
+            })
         viewModel.getAllWorkoutDates()
     }
 
     override fun setNewViewState(viewState: ViewState) {
-        for (dateEntry in viewState.listOfDateEntries) {
-            caldroidFragment.setBackgroundDrawableForDate(dateEntry.backgroundColor, dateEntry.date)
+        caldroidFragment.apply {
+            viewState.listOfColoredWorkoutDates.forEach { dateEntry ->
+                setBackgroundDrawableForDate(dateEntry.backgroundColor, dateEntry.date)
+            }
+            refreshView()
         }
-        caldroidFragment.refreshView()
+    }
+
+    override fun onDestroy() {
+        compositeDisposable.clear()
+        super.onDestroy()
     }
 
     private fun setup() {
         caldroidFragment.caldroidListener = object : CaldroidListener() {
             override fun onSelectDate(date: Date, view: View?) {
-                viewModel.addDate(date, true)
+                viewModel.selectedDate(date)
             }
         }
         deleteAllButton.setOnClickListener {
