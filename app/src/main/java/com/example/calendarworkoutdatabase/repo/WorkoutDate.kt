@@ -1,4 +1,4 @@
-package com.example.calendarworkoutdatabase.data
+package com.example.calendarworkoutdatabase.repo
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
