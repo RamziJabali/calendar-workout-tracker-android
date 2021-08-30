@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
+import com.example.calendarworkoutdatabase.usecase.ColoredWorkoutDate
 import com.example.calendarworkoutdatabase.usecase.UseCase
 import com.example.calendarworkoutdatabase.util.isAfterToday
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -13,10 +14,10 @@ import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import java.util.*
 
-class ViewModel(application: Application) : AndroidViewModel(application) {
+class ViewModel(application: Application, private val useCase: UseCase) : AndroidViewModel(application) {
     val viewStateObservable = BehaviorSubject.create<ViewState>()
     private var viewState = ViewState()
-    private val useCase by lazy { UseCase(application) }
+//    private val useCase by lazy { UseCase()}
 
     @SuppressLint("CheckResult")
     fun selectedDate(date: Date) {
@@ -40,7 +41,6 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
                             getAllWorkoutDates()
                         }
                 )
-
     }
 
     @SuppressLint("CheckResult")
@@ -58,12 +58,21 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun deleteAllWorkoutDates() {
-        useCase.deleteAllEntries()
         getAllWorkoutDates()
+        viewState.listOfColoredWorkoutDates = makeAllDateEntryColorsEmpty(viewState.listOfColoredWorkoutDates)
+        useCase.deleteAllEntries()
+        invalidateView()
     }
 
     private fun invalidateView() {
         viewStateObservable.onNext(viewState)
     }
-}
 
+    private fun makeAllDateEntryColorsEmpty(listOfColoredWorkoutDates: List<ColoredWorkoutDate>): List<ColoredWorkoutDate> {
+        val finalColoredWorkoutList: MutableList<ColoredWorkoutDate> = mutableListOf()
+        listOfColoredWorkoutDates.forEach { coloredWorkoutDate ->
+            finalColoredWorkoutList.add(ColoredWorkoutDate(coloredWorkoutDate.date, ColorDrawable(Color.WHITE)))
+        }
+        return finalColoredWorkoutList
+    }
+}

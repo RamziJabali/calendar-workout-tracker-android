@@ -13,11 +13,12 @@ import com.roomorama.caldroid.CaldroidListener
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.util.*
 
 class CalendarActivity : AppCompatActivity(), ViewListener {
 
-    private val viewModel: ViewModel by lazy { ViewModel(application) }
+    private val viewModel: ViewModel by viewModel()
     private val deleteAllButton: Button by lazy { findViewById(R.id.deleteAllButton) }
     private val caldroidFragment: CaldroidFragment by lazy {
         val calendar = Calendar.getInstance()

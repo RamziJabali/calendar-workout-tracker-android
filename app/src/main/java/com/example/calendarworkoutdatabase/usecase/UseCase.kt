@@ -19,6 +19,8 @@ class UseCase(application: Application) {
             ColorDrawable(Color.RED)
         private val hasWorkedOutColor: ColorDrawable =
             ColorDrawable(Color.GREEN)
+        private val emptyEntryColor: ColorDrawable =
+            ColorDrawable(Color.WHITE)
     }
 
     private val database by lazy { WorkoutDatabase.getInstance(application.applicationContext) }
