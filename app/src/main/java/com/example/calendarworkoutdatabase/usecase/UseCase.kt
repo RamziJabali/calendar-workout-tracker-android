@@ -13,18 +13,13 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import java.util.Date
 
-class UseCase(application: Application) {
+class UseCase(private val repository: WorkoutRepository) {
     companion object {
         private val hasNotWorkedOutColor: ColorDrawable =
             ColorDrawable(Color.RED)
         private val hasWorkedOutColor: ColorDrawable =
             ColorDrawable(Color.GREEN)
-        private val emptyEntryColor: ColorDrawable =
-            ColorDrawable(Color.WHITE)
     }
-
-    private val database by lazy { WorkoutDatabase.getInstance(application.applicationContext) }
-    private val repository by lazy { WorkoutRepository(database.workoutDAO()) }
 
     fun getAllColoredWorkoutDates(): Observable<List<ColoredWorkoutDate>> =
         repository.getAllWorkoutDates()
